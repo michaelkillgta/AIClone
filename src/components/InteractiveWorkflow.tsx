@@ -6,8 +6,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Camera, RefreshCw, Smartphone, Check, Loader2, ArrowRight, Play, Sparkles } from "lucide-react";
+import { FaceProfile } from "../types";
 
-export default function InteractiveWorkflow() {
+interface InteractiveWorkflowProps {
+  selectedProfile: FaceProfile;
+}
+
+export default function InteractiveWorkflow({ selectedProfile }: InteractiveWorkflowProps) {
   const [activeStep, setActiveStep] = useState(0);
 
   // Step 1: Scan Simulation State
@@ -31,11 +36,15 @@ export default function InteractiveWorkflow() {
   // Step 1 scanning effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    let transitionTimeout: NodeJS.Timeout;
     if (scanning) {
       interval = setInterval(() => {
         setScanProgress((prev) => {
           if (prev >= 100) {
             setScanning(false);
+            transitionTimeout = setTimeout(() => {
+              setActiveStep(1);
+            }, 1500);
             return 100;
           }
           return prev + 5;
@@ -44,7 +53,10 @@ export default function InteractiveWorkflow() {
     } else {
       setScanProgress(0);
     }
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(transitionTimeout);
+    };
   }, [scanning]);
 
   // Step 2 generation trigger
@@ -53,14 +65,40 @@ export default function InteractiveWorkflow() {
     setGeneratedHook("");
     setTimeout(() => {
       setLoadingAssets(false);
-      const scripts = [
-        "💥 HOOK: 'I stopped recording videos 6 months ago, but I made $15k last week. Here is why the old creator economy is dead...' 🎬 TRANSITION: [Soft zoom, cinematic background grid shifts to crimson] 📝 CAPTION: Secure your clone now while others are still recording. #MakeItViral",
-        "🚨 HOOK: 'The biggest lie in creators is that you need camera face time. My neural proxy posts 24/7 in Gachibowli while I Sleep...' 🎬 TRANSITION: [3D pan, digital India map glows in absolute red] 📝 CAPTION: Passive scale is real. #MakeItViral #GrokTrends",
-        "✨ HOOK: 'You are still doomscrolling, while your favorite creators cloned themselves in under 2 minutes...' 🎬 TRANSITION: [Fast cut, biometric face scan indicator] 📝 CAPTION: Deploy your neural footprint now and automate sponsorships #neural #tech"
-      ];
+      const name = selectedProfile.name.toLowerCase();
+      let scripts: string[] = [];
+      if (name.includes("ananya")) {
+        scripts = [
+          "✨ HOOK: 'I replaced my daily vlogging routine with an AI clone, and my engagement literally tripled. Here is the secret...' 🎬 TRANSITION: [Camera zoom, warm lifestyle filters] 📝 CAPTION: Level up your lifestyle brand with 24/7 clones. #AnanyaAI #Lifestyle #MakeItViral",
+          "💥 HOOK: 'Stop spending 12 hours editing vlogs. Mumbai core server is deploying my vlogs and brand deals while I travel the world...' 🎬 TRANSITION: [Smooth drift, Mumbai telemetry grid] 📝 CAPTION: Lifestyle scaling without burnouts. #CreatorEconomy #MakeItViral"
+        ];
+      } else if (name.includes("diya")) {
+        scripts = [
+          "👠 HOOK: 'My virtual clone just walked three digital runways while I was asleep. The future of fashion modelling is synthetic...' 🎬 TRANSITION: [Fast strobe cut, metallic crimson grid styling] 📝 CAPTION: Showcase trends at lightspeed. #DiyaAI #FashionTech #MakeItViral",
+          "🚨 HOOK: 'The fashion industry doesn't want you to know this, but you don't need photo shoots to launch a collection anymore...' 🎬 TRANSITION: [3D model pan, biometric dress scanning lines] 📝 CAPTION: Scale outfits without studio rents. #VirtualStylist #MakeItViral"
+        ];
+      } else {
+        scripts = [
+          "🚨 HOOK: 'I stopped recording videos 6 months ago, but my AI clone made $15k last week. The old creator economy is dead...' 🎬 TRANSITION: [Soft zoom, crimson grid shifts] 📝 CAPTION: Secure your clone now while others are still recording. #MakeItViral",
+          "✨ HOOK: 'You are still doomscrolling, while your favorite creators cloned themselves in under 2 minutes...' 🎬 TRANSITION: [Fast cut, biometric face scan indicator] 📝 CAPTION: Deploy your neural footprint now and automate sponsorships #neural #tech"
+        ];
+      }
       setGeneratedHook(scripts[Math.floor(Math.random() * scripts.length)]);
     }, 1500);
   };
+
+  // Sync topic input when selectedProfile changes
+  useEffect(() => {
+    const name = selectedProfile.name.toLowerCase();
+    if (name.includes("ananya")) {
+      settopicInput("How lifestyle creators can scale partnerships using AI twins");
+    } else if (name.includes("diya")) {
+      settopicInput("Why virtual fashion models will dominate the runways in 2026");
+    } else {
+      settopicInput("How I automated my content creation pipeline in 2 minutes");
+    }
+    setGeneratedHook("");
+  }, [selectedProfile]);
 
   // Step 3 deployment simulation
   const handleTriggerDeploy = () => {
@@ -206,7 +244,24 @@ export default function InteractiveWorkflow() {
               <div id="sim-face-scan" className="space-y-6 text-center">
                 <div className="max-w-[280px] h-[190px] mx-auto bg-black border border-white/10 rounded-xl relative overflow-hidden shadow-2xl flex flex-col items-center justify-center">
                   
-                  {/* Camer Simulation view overlay */}
+                  {/* Profile face image backdrop */}
+                  <img 
+                    src={selectedProfile.imgUrl} 
+                    alt="Scanning face" 
+                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ${
+                      scanning 
+                        ? "opacity-60 saturate-100 filter blur-0" 
+                        : scanProgress >= 100 
+                          ? "opacity-50 saturate-75 filter blur-[1px]" 
+                          : "opacity-25 saturate-50 filter grayscale"
+                    }`}
+                    referrerPolicy="no-referrer"
+                    style={{
+                      objectPosition: selectedProfile.objectPosition || "center 12%",
+                    }}
+                  />
+
+                  {/* Camera Simulation view overlay */}
                   <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/80 pointer-events-none" />
                   
                   {/* Cyber Face HUD Grid bounds */}
@@ -227,7 +282,7 @@ export default function InteractiveWorkflow() {
                       
                       <div className="text-center z-10 px-4 space-y-1">
                         <Camera className="w-8 h-8 text-viral-red mx-auto animate-pulse mb-2" />
-                        <span className="block text-[10px] font-mono text-gray-400">ANALYZING SIGNAL VECTOR</span>
+                        <span className="block text-[10px] font-mono text-gray-200">ANALYZING SIGNAL VECTOR</span>
                         <span className="block text-lg font-mono font-bold text-white text-glow">{scanProgress}%</span>
                       </div>
                     </>
@@ -237,12 +292,12 @@ export default function InteractiveWorkflow() {
                         <Check className="w-5 h-5" />
                       </div>
                       <span className="block text-[10px] font-mono text-emerald-400 uppercase font-semibold">DNA VECTOR CREATED</span>
-                      <span className="block text-[11px] font-mono text-gray-400 mt-1">HQ voice & facial clone synced</span>
+                      <span className="block text-[11px] font-mono text-gray-300 mt-1">HQ voice & facial clone synced</span>
                     </div>
                   ) : (
                     <div className="text-center z-10 px-4 space-y-2">
-                      <Camera className="w-10 h-10 text-gray-600 mx-auto" />
-                      <span className="block text-xs font-mono text-gray-400 max-w-[200px]">Simulate 2-minute dynamic scan</span>
+                      <Camera className="w-10 h-10 text-white/40 mx-auto animate-pulse" />
+                      <span className="block text-xs font-mono text-white/80 max-w-[200px] bg-black/60 py-1 px-2 rounded backdrop-blur-sm">Simulate 2-minute dynamic scan</span>
                     </div>
                   )}
                 </div>
@@ -254,11 +309,15 @@ export default function InteractiveWorkflow() {
                       setScanProgress(0);
                     }}
                     disabled={scanning}
-                    className="bg-viral-red text-white font-mono text-xs font-bold px-6 py-2.5 rounded-full hover:bg-neutral-100 hover:text-black transition-all flex items-center gap-2 border border-viral-red cursor-pointer"
+                    className={`font-mono text-xs font-extrabold px-8 py-3 rounded-full border transition-all flex items-center gap-2 cursor-pointer uppercase ${
+                      scanning 
+                        ? "bg-white text-black border-viral-red shadow-[0_0_20px_rgba(255,59,48,0.8)]" 
+                        : "bg-viral-red text-white hover:bg-neutral-100 hover:text-black border-viral-red"
+                    }`}
                   >
                     {scanning ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                         SCANNING...
                       </>
                     ) : (
@@ -275,8 +334,16 @@ export default function InteractiveWorkflow() {
             {/* SIMULATION 2: Assets & Generate */}
             {activeStep === 1 && (
               <div id="sim-prompt-generation" className="space-y-4">
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block">NEURAL CORE PROMPT INPUT</label>
+                <div className="space-y-2 text-left">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block">NEURAL CORE PROMPT INPUT</label>
+                    <div className="flex items-center gap-1.5 bg-white/[0.04] border border-white/5 rounded px-2 py-0.5">
+                      <div className="w-3.5 h-3.5 rounded-full overflow-hidden border border-white/25">
+                        <img src={selectedProfile.imgUrl} className="w-full h-full object-cover" style={{ objectPosition: selectedProfile.objectPosition || "center 12%" }} />
+                      </div>
+                      <span className="text-[9px] font-mono text-white/80">{selectedProfile.name.split(" ")[0]}</span>
+                    </div>
+                  </div>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -298,7 +365,7 @@ export default function InteractiveWorkflow() {
                   {loadingAssets ? (
                     <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center text-xs font-mono text-gray-500 h-full py-8">
                       <RefreshCw className="w-5 h-5 text-viral-red animate-spin" />
-                      <span>Gemini is compiling hook hooks & render variables...</span>
+                      <span>Gemini is compiling script hooks & render variables...</span>
                     </div>
                   ) : generatedHook ? (
                     <div className="space-y-2.5 animate-fadeIn">
@@ -321,58 +388,128 @@ export default function InteractiveWorkflow() {
 
             {/* SIMULATION 3: One Click Publishing */}
             {activeStep === 2 && (
-              <div id="sim-publishing" className="space-y-4">
-                <div className="grid grid-cols-3 gap-2.5">
-                  
-                  {/* Tiktok status */}
-                  <div className="bg-black/40 border border-white/5 rounded-xl p-3 text-center">
-                    <span className="text-[10px] font-mono text-gray-500 block mb-1">TIKTOK API</span>
-                    <strong className={`text-xs font-mono ${
-                      deployStates.tiktok === "SYNC_NOMINAL" ? "text-emerald-400" : deployStates.tiktok.startsWith("UP") ? "text-viral-red animate-pulse" : "text-gray-500"
-                    }`}>
-                      {deployStates.tiktok}
-                    </strong>
-                  </div>
-
-                  {/* Reels status */}
-                  <div className="bg-black/40 border border-white/5 rounded-xl p-3 text-center">
-                    <span className="text-[10px] font-mono text-gray-500 block mb-1">IG REELS</span>
-                    <strong className={`text-xs font-mono ${
-                      deployStates.reels === "SYNC_NOMINAL" ? "text-emerald-400" : deployStates.reels.startsWith("UP") ? "text-viral-red animate-pulse" : "text-gray-500"
-                    }`}>
-                      {deployStates.reels}
-                    </strong>
-                  </div>
-
-                  {/* Shorts status */}
-                  <div className="bg-black/40 border border-white/5 rounded-xl p-3 text-center">
-                    <span className="text-[10px] font-mono text-gray-500 block mb-1">YT SHORTS</span>
-                    <strong className={`text-xs font-mono ${
-                      deployStates.shorts === "SYNC_NOMINAL" ? "text-emerald-400" : deployStates.shorts.startsWith("UP") ? "text-viral-red animate-pulse" : "text-gray-500"
-                    }`}>
-                      {deployStates.shorts}
-                    </strong>
-                  </div>
-                </div>
-
-                <div className="bg-black/50 border border-white/[0.05] rounded-xl p-4 text-center min-h-[90px] flex flex-col justify-center items-center">
-                  {!deploymentActive ? (
-                    <button
-                      onClick={handleTriggerDeploy}
-                      className="bg-viral-red text-white font-mono text-xs font-bold px-6 py-2.5 rounded-full hover:bg-neutral-100 hover:text-black transition-all border border-viral-red cursor-pointer flex items-center gap-1.5 uppercase"
-                    >
-                      <Smartphone className="w-3.5 h-3.5" />
-                      AUTO-POST COMPILATION NOW
-                    </button>
-                  ) : (
-                    <div className="animate-scaleUp">
-                      <span className="text-[11px] font-mono text-gray-500 block uppercase mb-1">CUMULATIVE NEURAL ENGAGEMENT</span>
-                      <strong className="text-2xl md:text-3xl font-mono text-viral-red text-glow tracking-wider">
-                        {viewsCounter.toLocaleString()} <span className="text-xs text-white">VIEWS</span>
+              <div id="sim-publishing" className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                
+                {/* Left Side: status cards and compile trigger (col-span-7) */}
+                <div className="md:col-span-7 space-y-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Tiktok status */}
+                    <div className="bg-black/40 border border-white/5 rounded-xl p-2.5 text-center">
+                      <span className="text-[9px] font-mono text-gray-500 block mb-1">TIKTOK API</span>
+                      <strong className={`text-[10px] font-mono ${
+                        deployStates.tiktok === "SYNC_NOMINAL" ? "text-emerald-400" : deployStates.tiktok.startsWith("UP") ? "text-viral-red animate-pulse" : "text-gray-500"
+                      }`}>
+                        {deployStates.tiktok}
                       </strong>
                     </div>
-                  )}
+
+                    {/* Reels status */}
+                    <div className="bg-black/40 border border-white/5 rounded-xl p-2.5 text-center">
+                      <span className="text-[9px] font-mono text-gray-500 block mb-1">IG REELS</span>
+                      <strong className={`text-[10px] font-mono ${
+                        deployStates.reels === "SYNC_NOMINAL" ? "text-emerald-400" : deployStates.reels.startsWith("UP") ? "text-viral-red animate-pulse" : "text-gray-500"
+                      }`}>
+                        {deployStates.reels}
+                      </strong>
+                    </div>
+
+                    {/* Shorts status */}
+                    <div className="bg-black/40 border border-white/5 rounded-xl p-2.5 text-center">
+                      <span className="text-[9px] font-mono text-gray-500 block mb-1">YT SHORTS</span>
+                      <strong className={`text-[10px] font-mono ${
+                        deployStates.shorts === "SYNC_NOMINAL" ? "text-emerald-400" : deployStates.shorts.startsWith("UP") ? "text-viral-red animate-pulse" : "text-gray-500"
+                      }`}>
+                        {deployStates.shorts}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="bg-black/50 border border-white/[0.05] rounded-xl p-4 text-center min-h-[90px] flex flex-col justify-center items-center">
+                    {!deploymentActive ? (
+                      <button
+                        onClick={handleTriggerDeploy}
+                        className="bg-viral-red text-white font-mono text-xs font-bold px-6 py-2.5 rounded-full hover:bg-neutral-100 hover:text-black transition-all border border-viral-red cursor-pointer flex items-center gap-1.5 uppercase w-full justify-center"
+                      >
+                        <Smartphone className="w-3.5 h-3.5" />
+                        AUTO-POST CLONE NOW
+                      </button>
+                    ) : (
+                      <div className="animate-scaleUp">
+                        <span className="text-[11px] font-mono text-gray-500 block uppercase mb-1">CUMULATIVE NEURAL ENGAGEMENT</span>
+                        <strong className="text-2xl font-mono text-viral-red text-glow tracking-wider">
+                          {viewsCounter.toLocaleString()} <span className="text-xs text-white">VIEWS</span>
+                        </strong>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Right Side: Phone mockup with live video playback (col-span-5) */}
+                <div className="md:col-span-5 flex justify-center">
+                  <div className="w-[150px] h-[260px] rounded-2xl border border-white/20 bg-neutral-950 relative overflow-hidden shadow-2xl flex flex-col justify-between">
+                    
+                    {/* Notch speaker */}
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-3.5 bg-black rounded-full z-20 flex items-center justify-center">
+                      <div className="w-4 h-0.5 bg-neutral-800 rounded-full" />
+                    </div>
+
+                    {/* Active video player */}
+                    {selectedProfile.videoUrl ? (
+                      <video
+                        key={selectedProfile.videoUrl}
+                        src={selectedProfile.videoUrl}
+                        autoPlay
+                        loop
+                        muted
+                        defaultMuted
+                        playsInline
+                        className="absolute inset-0 w-full h-full object-cover z-0"
+                        style={{
+                          objectPosition: selectedProfile.objectPosition || "center 12%",
+                        }}
+                      />
+                    ) : (
+                      <img
+                        src={selectedProfile.imgUrl}
+                        alt={selectedProfile.name}
+                        className="absolute inset-0 w-full h-full object-cover z-0"
+                        referrerPolicy="no-referrer"
+                        style={{
+                          objectPosition: selectedProfile.objectPosition || "center 12%",
+                        }}
+                      />
+                    )}
+
+                    {/* Shadow overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 z-10 pointer-events-none" />
+
+                    {/* Interactive overlay texts (e.g. social tag and hook text preview) */}
+                    <div className="z-10 p-2.5 text-left pointer-events-none mt-auto space-y-0.5">
+                      <span className="text-[8.5px] font-bold text-white tracking-wide block">
+                        @{selectedProfile.name.split(" ")[0].toLowerCase()}
+                      </span>
+                      <p className="text-[7.5px] font-mono text-gray-200 leading-snug line-clamp-3 select-none">
+                        {generatedHook ? generatedHook.split("🎬")[0].replace("💥 HOOK: ", "").replace("👠 HOOK: ", "").replace("🚨 HOOK: ", "").replace("✨ HOOK: ", "").replace(/'/g, "") : "Deploying my synthetic avatar 24/7. Outperforming human limits! 🚀 #MakeItViral"}
+                      </p>
+                    </div>
+
+                    {/* Social HUD indicator icons on the right margin of mock */}
+                    <div className="absolute right-2 bottom-12 z-20 flex flex-col items-center gap-2 text-white/90 pointer-events-none">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span className="text-[9px]">❤️</span>
+                        <span className="text-[6.5px] font-mono">{(viewsCounter * 0.09).toFixed(0)}</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span className="text-[9px]">💬</span>
+                        <span className="text-[6.5px] font-mono">{(viewsCounter * 0.02).toFixed(0)}</span>
+                      </div>
+                    </div>
+
+                    {/* Phone bottom bar line */}
+                    <div className="w-10 h-0.5 bg-white/40 rounded-full mx-auto mb-1 z-20" />
+                  </div>
+                </div>
+
               </div>
             )}
 

@@ -17,50 +17,18 @@ import {
   Network
 } from "lucide-react";
 
-// Mock profiles for biometric onboarding
-interface FaceProfile {
-  name: string;
-  role: string;
-  income: string;
-  imgUrl: string;
-  videoUrl?: string;
-  labsSharedUrl?: string;
-  vectorPoints: number;
+import { FaceProfile, PRESET_PROFILES } from "../types";
+
+interface BiometricAvatarInterfaceProps {
+  selectedProfile: FaceProfile;
+  setSelectedProfile: (profile: FaceProfile) => void;
 }
 
-const PRESET_PROFILES: FaceProfile[] = [
-  {
-    name: "Karan Singhania",
-    role: "Fintech Educator",
-    income: "₹18.4L/mo",
-    imgUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200",
-    videoUrl: "https://videos.pexels.com/video-files/3253734/3253734-hd_1080_1920_25fps.mp4",
-    labsSharedUrl: "https://labs.google/fx/tools/flow/shared/video/feacbeea-aa21-4226-a624-f89cb77e4fb0",
-    vectorPoints: 142
-  },
-  {
-    name: "Ananya Deshmukh",
-    role: "Lifestyle Creator",
-    income: "₹24.8L/mo",
-    imgUrl: "https://images.unsplash.com/photo-1621184455862-c163dfb30e0f?auto=format&fit=crop&q=80&w=300&h=300",
-    videoUrl: "https://videos.pexels.com/video-files/3910040/3910040-hd_1080_1920_30fps.mp4",
-    labsSharedUrl: "https://labs.google/fx/tools/flow/shared/video/feacbeea-aa21-4226-a624-f89cb77e4fb0",
-    vectorPoints: 156
-  },
-  {
-    name: "Diya Sharma",
-    role: "Fashion Creator",
-    income: "₹35.2L/mo",
-    imgUrl: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&q=80&w=300&h=300",
-    videoUrl: "https://videos.pexels.com/video-files/3752514/3752514-hd_1080_1920_25fps.mp4",
-    labsSharedUrl: "https://labs.google/fx/tools/flow/shared/video/feacbeea-aa21-4226-a624-f89cb77e4fb0",
-    vectorPoints: 138
-  }
-];
-
-export default function BiometricAvatarInterface() {
+export default function BiometricAvatarInterface({
+  selectedProfile,
+  setSelectedProfile
+}: BiometricAvatarInterfaceProps) {
   const [stage, setStage] = useState<"SELECT" | "SCANNING" | "MAPPING" | "SYNTHESIS">("SELECT");
-  const [selectedProfile, setSelectedProfile] = useState<FaceProfile>(PRESET_PROFILES[0]);
   const [scanProgress, setScanProgress] = useState(0);
   const [mappingProgress, setMappingProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -75,6 +43,7 @@ export default function BiometricAvatarInterface() {
 
   // Video timeline variables for the active talking avatar synthesis simulation
   const [videoTime, setVideoTime] = useState(0.0);
+  const [videoDuration, setVideoDuration] = useState(15.0);
   const [isBlinking, setIsBlinking] = useState(false);
   const [isVideoHovered, setIsVideoHovered] = useState(false);
 
@@ -201,11 +170,12 @@ export default function BiometricAvatarInterface() {
     if (videoRef.current) {
       const time = videoRef.current.currentTime;
       setVideoTime(parseFloat(time.toFixed(1)));
-      let duration = videoRef.current.duration;
-      if (isNaN(duration) || !isFinite(duration) || duration <= 0) {
-        duration = 15.0;
+      const duration = videoRef.current.duration;
+      if (duration && isFinite(duration) && duration > 0 && duration !== videoDuration) {
+        setVideoDuration(duration);
       }
-      const progress = isFinite(time / duration) ? Math.max(0, Math.min(1, time / duration)) : 0;
+      const activeDuration = duration && isFinite(duration) && duration > 0 ? duration : videoDuration;
+      const progress = isFinite(time / activeDuration) ? Math.max(0, Math.min(1, time / activeDuration)) : 0;
       setSubtitleIndex(Math.min(subtitles.length - 1, Math.floor(progress * subtitles.length)));
     }
   };
@@ -351,7 +321,7 @@ export default function BiometricAvatarInterface() {
             // STEP 01: Select creators or capture your face data
           </p>
 
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-2 gap-2.5">
             {PRESET_PROFILES.map((profile, i) => (
               <button
                 key={i}
@@ -381,59 +351,15 @@ export default function BiometricAvatarInterface() {
             ))}
           </div>
 
-          {/* Interactive photo file dropzone block */}
-          <label className="border border-dashed border-white/10 hover:border-viral-red/40 bg-neutral-950/60 rounded-xl p-5 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all duration-300 group">
-            <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-            <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-viral-red/10 transition-all">
-              <UploadCloud className="w-4 h-4 text-gray-400 group-hover:text-viral-red transition-all" />
+          {/* Static photo file dropzone block */}
+          <div className="border border-dashed border-white/5 bg-neutral-950/40 rounded-xl p-5 flex flex-col items-center justify-center gap-1.5 opacity-55 select-none">
+            <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
+              <UploadCloud className="w-4 h-4 text-gray-500" />
             </div>
             <div className="text-center">
-              <span className="text-[11px] font-semibold text-white block">Drop photos or Upload Portrait</span>
-              <span className="text-[9px] font-mono text-gray-500 uppercase mt-0.5 block">Supports PNG, JPG, HEIC up to 10MB</span>
+              <span className="text-[11px] font-semibold text-gray-400 block">Drop photos or Upload Portrait</span>
+              <span className="text-[9px] font-mono text-gray-600 uppercase mt-0.5 block">Supports PNG, JPG, HEIC up to 10MB</span>
             </div>
-          </label>
-
-          {/* Google Labs video connection */}
-          <div className="bg-neutral-950/50 p-3 pb-3.5 border border-white/5 rounded-xl space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-wider block font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
-                Google Labs Pipeline Sync
-              </span>
-              <span className="text-[8px] font-mono text-gray-500 uppercase">ACTIVE_DEv</span>
-            </div>
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                value={customLabsUrl}
-                onChange={(e) => setCustomLabsUrl(e.target.value)}
-                placeholder="https://labs.google/fx/tools/flow/shared/video/..." 
-                className="flex-1 bg-black/60 border border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-gray-300 focus:outline-none focus:border-viral-red/50 transition-all placeholder:text-gray-600"
-              />
-              <button 
-                onClick={() => {
-                  // Trigger loading of Google Labs video preset
-                  const labsProfile: FaceProfile = {
-                    name: "Google Labs Flow Clone",
-                    role: "VideoFX Sync Clone",
-                    income: "₹45.0L/mo est.",
-                    imgUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200&h=200",
-                    videoUrl: "https://videos.pexels.com/video-files/3253734/3253734-hd_1080_1920_25fps.mp4", // Pre-loaded beautiful smiling young man matching screenshot!
-                    labsSharedUrl: customLabsUrl,
-                    vectorPoints: 198
-                  };
-                  setSelectedProfile(labsProfile);
-                  setVideoError(false);
-                  setStage("SCANNING");
-                }}
-                className="bg-viral-red/20 hover:bg-viral-red/35 hover:text-white border border-viral-red/40 px-3 py-1 text-[10px] font-mono font-bold uppercase transition-all tracking-wider text-viral-red cursor-pointer rounded-lg"
-              >
-                Sync Link
-              </button>
-            </div>
-            <p className="text-[8.5px] font-mono text-gray-500 leading-normal">
-              PRE-CONFIGURED WITH YOUR GENERATED VIDEO ID. CLICKS WILL SYNCHRONIZE YOUR LIVE NEURAL TALKING RENDERER AS DEPICTED.
-            </p>
           </div>
 
           <div className="pt-1">
@@ -457,7 +383,15 @@ export default function BiometricAvatarInterface() {
           </div>
 
           <div className="h-[210px] w-full bg-black rounded-xl overflow-hidden relative border border-white/5 flex items-center justify-center shadow-inner">
-            <img src={getProfileImage()} alt="Scanning face" className="w-full h-full object-cover opacity-60 filter saturate-50" referrerPolicy="no-referrer" />
+            <img 
+              src={getProfileImage()} 
+              alt="Scanning face" 
+              className="w-full h-full object-cover opacity-60 filter saturate-50" 
+              referrerPolicy="no-referrer" 
+              style={{
+                objectPosition: selectedProfile.objectPosition || "center 12%",
+              }}
+            />
             
             {/* Real-time high tech horizontal scanning laser beam */}
             <div 
@@ -608,9 +542,18 @@ export default function BiometricAvatarInterface() {
                   src={selectedProfile.videoUrl}
                   loop
                   muted
+                  defaultMuted
                   playsInline
                   autoPlay
                   onTimeUpdate={handleTimeUpdate}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onLoadedMetadata={(e) => {
+                    const dur = e.currentTarget.duration;
+                    if (dur && isFinite(dur) && dur > 0) {
+                      setVideoDuration(dur);
+                    }
+                  }}
                   onError={() => {
                     console.warn("Video failed to play: running image fallback sync mode");
                     setVideoError(true);
@@ -620,6 +563,7 @@ export default function BiometricAvatarInterface() {
                   }`}
                   style={{
                     transformOrigin: "center center",
+                    objectPosition: selectedProfile.objectPosition || "center 12%",
                   }}
                 />
               ) : (
@@ -632,6 +576,7 @@ export default function BiometricAvatarInterface() {
                   referrerPolicy="no-referrer"
                   style={{
                     transformOrigin: "center center",
+                    objectPosition: selectedProfile.objectPosition || "center 12%",
                   }}
                 />
               )}
@@ -765,7 +710,7 @@ export default function BiometricAvatarInterface() {
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Time Display */}
-                <span className="text-[9px] text-[#8E8E93]">{formatVideoTime(videoTime)} / 00:15.0</span>
+                <span className="text-[9px] text-[#8E8E93]">{formatVideoTime(videoTime)} / {formatVideoTime(videoDuration)}</span>
 
                 {/* Clickable horizontal seek progress track */}
                 <div 
@@ -773,10 +718,7 @@ export default function BiometricAvatarInterface() {
                   onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const val = (e.clientX - rect.left) / rect.width;
-                    let duration = videoRef.current ? videoRef.current.duration : 15.0;
-                    if (isNaN(duration) || !isFinite(duration) || duration <= 0) {
-                      duration = 15.0;
-                    }
+                    const duration = videoDuration;
                     const rawSec = val * duration;
                     const sec = isFinite(rawSec) && !isNaN(rawSec) 
                       ? Math.max(0.0, Math.min(duration, parseFloat(rawSec.toFixed(1))))
@@ -793,9 +735,7 @@ export default function BiometricAvatarInterface() {
                     style={{ 
                       width: `${
                         (() => {
-                          const duration = videoRef.current ? videoRef.current.duration : 15.0;
-                          const safeDuration = isNaN(duration) || !isFinite(duration) || duration <= 0 ? 15.0 : duration;
-                          const percent = (videoTime / safeDuration) * 100;
+                          const percent = (videoTime / videoDuration) * 100;
                           return isFinite(percent) && !isNaN(percent) ? Math.max(0, Math.min(100, percent)) : 0;
                         })()
                       }%` 

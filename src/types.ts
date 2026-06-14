@@ -39,3 +39,35 @@ export interface WorkflowStep {
   detail: string;
   badge: string;
 }
+
+export interface FaceProfile {
+  name: string;
+  role: string;
+  income: string;
+  imgUrl: string;
+  videoUrl?: string;
+  labsSharedUrl?: string;
+  vectorPoints: number;
+  objectPosition?: string;
+}
+
+export const PRESET_PROFILES: FaceProfile[] = [
+  {
+    name: "Ananya Deshmukh",
+    role: "Lifestyle Creator",
+    income: "₹24.8L/mo",
+    imgUrl: "/ananya.png?v=2.0.1",
+    videoUrl: "/Lip_sync_video_hand_moments_202606150303.mp4",
+    vectorPoints: 156,
+    objectPosition: "center 12%"
+  },
+  {
+    name: "Diya Sharma",
+    role: "Fashion Creator",
+    income: "₹35.2L/mo",
+    imgUrl: "/diya.png?v=2.0.1",
+    videoUrl: "/Lipsync_and_handmoments_202606150312.mp4",
+    vectorPoints: 138,
+    objectPosition: "center 12%"
+  }
+];

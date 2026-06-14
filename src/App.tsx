@@ -26,8 +26,10 @@ import FeatureGrid from "./components/FeatureGrid";
 import InteractiveWorkflow from "./components/InteractiveWorkflow";
 import BiometricAvatarInterface from "./components/BiometricAvatarInterface";
 import BrandLogo from "./components/BrandLogo";
+import { FaceProfile, PRESET_PROFILES } from "./types";
 
 export default function App() {
+  const [selectedProfile, setSelectedProfile] = useState<FaceProfile>(PRESET_PROFILES[0]);
   const [latencyTime, setLatencyTime] = useState("1.4ms");
   const [currentUtcTime, setCurrentUtcTime] = useState("");
   const [voiceSyncing, setVoiceSyncing] = useState(false);
@@ -178,7 +180,7 @@ export default function App() {
             {/* VISUAL PANEL AREA (lg:col-span-7) */}
             {/* Renders interactive biometric mesh coordinate mock & neural synthesizer simulation */}
             <div className="lg:col-span-7 w-full flex justify-center">
-              <BiometricAvatarInterface />
+              <BiometricAvatarInterface selectedProfile={selectedProfile} setSelectedProfile={setSelectedProfile} />
             </div>
 
           </div>
@@ -233,7 +235,7 @@ export default function App() {
         <FeatureGrid />
 
         {/* SECTION E: THE 3-STEP ATOMIC WORKFLOW PIPELINE */}
-        <InteractiveWorkflow />
+        <InteractiveWorkflow selectedProfile={selectedProfile} />
 
         {/* SECTION F: BRAND STACK & COMPLIANCE FOOTER */}
         

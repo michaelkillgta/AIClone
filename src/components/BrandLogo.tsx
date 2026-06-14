@@ -41,13 +41,14 @@ export default function BrandLogo({ className = "", size = "md" }: BrandLogoProp
     <div 
       id={`brand-logo-${size}`} 
       className={`flex items-center ${className} select-none font-sans tracking-tight text-white inline-flex`}
+      style={{ overflow: "visible" }}
     >
       <span className={`${textClass} lowercase`}>make</span>
       
       {/* Coral Red "it" Chat/Like bubble as shown in prompt image 2 */}
       <div 
         className={`relative flex items-center justify-center bg-[#f15b6c] mx-1 shrink-0 ${bubbleClass}`}
-        style={{ contentVisibility: "auto" }}
+        style={{ overflow: "visible" }}
       >
         <span className="relative flex items-center font-extrabold text-white leading-none">
           {/* Dotless i with Custom Heart Jot */}
@@ -64,8 +65,18 @@ export default function BrandLogo({ className = "", size = "md" }: BrandLogoProp
           <span className={`${letterStyle} font-extrabold leading-none`}>t</span>
         </span>
         
-        {/* Dynamic Bubble Pointer at the bottom */}
-        <div className={`absolute left-1/4 -translate-x-1/2 bg-[#f15b6c] rotate-45 rounded-sm ${arrowClass}`} />
+        {/* Dynamic Bubble Pointer at the bottom (SVG for perfect chat bubble shape) */}
+        <svg 
+          className="absolute left-[35%] -translate-x-1/2 text-[#f15b6c] fill-current" 
+          style={{
+            bottom: size === "sm" ? "-5px" : size === "md" ? "-7px" : "-10px",
+            width: size === "sm" ? "8px" : size === "md" ? "12px" : "16px",
+            height: size === "sm" ? "6px" : size === "md" ? "8px" : "11px",
+          }}
+          viewBox="0 0 12 8"
+        >
+          <path d="M 0 0 L 12 0 L 3 8 Z" />
+        </svg>
       </div>
 
       <span className={`${textClass} lowercase`}>viral.ai</span>
