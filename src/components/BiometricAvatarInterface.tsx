@@ -329,7 +329,7 @@ export default function BiometricAvatarInterface({
                   setSelectedProfile(profile);
                   setVideoError(false);
                 }}
-                className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 relative ${
+                className={`flex flex-col items-center p-3 rounded-xl border transition-all duration-300 relative cursor-pointer ${
                   selectedProfile.name === profile.name
                     ? "bg-viral-red/10 border-viral-red shadow-lg"
                     : "bg-[#050505] border-white/5 hover:border-white/20"
@@ -365,7 +365,7 @@ export default function BiometricAvatarInterface({
           <div className="pt-1">
             <button
               onClick={() => setStage("SCANNING")}
-              className="w-full bg-viral-red hover:brightness-110 active:scale-95 text-white py-3.5 px-4 rounded-xl text-xs font-mono font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full bg-viral-red hover:brightness-110 active:scale-95 text-white py-3.5 px-4 rounded-xl text-xs font-mono font-bold uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
             >
               <Camera className="w-4 h-4" />
               Scan and Extract Face Data

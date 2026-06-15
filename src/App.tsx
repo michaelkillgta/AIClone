@@ -240,10 +240,10 @@ export default function App() {
         {/* SECTION F: BRAND STACK & COMPLIANCE FOOTER */}
         
         {/* CLOSING BANNER JAW DROPPER */}
-        <section className="py-24 px-6 md:px-16 text-center relative z-10 w-full bg-transparent overflow-hidden">
+        <section className="py-8 px-6 md:px-16 text-center relative z-10 w-full bg-transparent overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,59,48,0.03),transparent)] pointer-events-none" />
           
-          <div className="max-w-4xl mx-auto glass-panel p-8 md:p-16 rounded-2xl relative border-t-4 border-t-viral-red mt-10">
+          <div className="max-w-4xl mx-auto glass-panel p-8 md:p-16 rounded-2xl relative border-t-4 border-t-viral-red mt-2">
             <span className="text-[10px] font-mono text-viral-red font-bold uppercase tracking-widest block mb-4">
               [ SECURE ACCESS VECTOR ]
             </span>

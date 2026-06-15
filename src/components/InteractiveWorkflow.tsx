@@ -154,13 +154,13 @@ export default function InteractiveWorkflow({ selectedProfile }: InteractiveWork
   ];
 
   return (
-    <section id="workflow-section" className="min-h-screen py-24 px-6 md:px-16 lg:px-24 flex flex-col justify-center relative z-10 w-full bg-transparent">
+    <section id="workflow-section" className="min-h-[75vh] py-10 px-6 md:px-16 lg:px-24 flex flex-col justify-center relative z-10 w-full bg-transparent">
       
       {/* Decorative markings */}
       <div className="absolute top-12 right-12 text-white/5 font-mono text-[10px] hidden lg:block">SYS_STEP_PIPELINE // SEC_RE_05</div>
 
       {/* Header */}
-      <div className="max-w-4xl mb-16 text-left">
+      <div className="max-w-4xl mb-8 text-left">
         <div className="flex items-center gap-2 mb-3">
           <span className="h-[1px] w-8 bg-viral-red" />
           <span className="text-xs font-mono uppercase tracking-widest text-viral-red font-semibold">03 // ATOMIC ONBOARDING</span>
